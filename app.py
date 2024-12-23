@@ -3,21 +3,25 @@ import gdown
 import streamlit as st
 from transformers import BlenderbotTokenizer, BlenderbotForConditionalGeneration
 
-# Set the path to the saved model directory and Google Drive link
+# Set the paths
 MODEL_DIR = "blenderbot_model"
 MODEL_URL = "https://drive.google.com/uc?id=1JgPI7RjiQ57zin9HxMcLOdQ-C4o1swoZ"
 MODEL_PATH = os.path.join(MODEL_DIR, "model.safetensors")
+IMG_DIR = "img"
+USER_AVATAR = os.path.join(IMG_DIR, "person.png")
+BOT_AVATAR = os.path.join(IMG_DIR, "bot.png")
 
-# Ensure the model directory exists
+# Ensure directories exist
 os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(IMG_DIR, exist_ok=True)
 
-# Function to download the model file using gdown
+# Function to download the model
 def download_model_with_gdown(url, dest_path):
     st.info("Downloading model... This may take a while.")
     gdown.download(url, dest_path, quiet=False)
     st.success("Model downloaded successfully!")
 
-# Check if model file exists and its size
+# Check if the model file exists
 if not os.path.exists(MODEL_PATH):
     st.warning("Model file not found. Downloading now...")
     try:
@@ -27,12 +31,20 @@ if not os.path.exists(MODEL_PATH):
         raise
 else:
     file_size = os.path.getsize(MODEL_PATH)
-    if file_size < 1_400_000_000:  # Expected size for the model is ~1.4GB
+    if file_size < 1_400_000_000:  # Expected size ~1.4GB
         st.error("Model file appears to be incomplete. Please re-download.")
         os.remove(MODEL_PATH)
         download_model_with_gdown(MODEL_URL, MODEL_PATH)
     else:
-        st.success("Model file size is valid.")
+        if "validation_message_displayed" not in st.session_state:
+            st.success("Model file size is valid.")
+            st.session_state.validation_message_displayed = True
+
+# Check if avatar images exist
+if not os.path.exists(USER_AVATAR):
+    st.error(f"User avatar image not found at {USER_AVATAR}. Please upload it.")
+if not os.path.exists(BOT_AVATAR):
+    st.error(f"Bot avatar image not found at {BOT_AVATAR}. Please upload it.")
 
 # Load the tokenizer and model
 try:
@@ -60,10 +72,6 @@ def get_response(input_text):
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Local paths to avatars
-user_avatar = "img/person.png"  # Local path to the user avatar
-bot_avatar = "img/bot.png"  # Local path to the bot avatar
-
 # Streamlit UI setup
 st.title("Chatbot with BlenderBot")
 
@@ -87,7 +95,13 @@ if submit_button and user_input:
 for sender, message in st.session_state.chat_history:
     col1, col2 = st.columns([1, 9])
     if sender == "user":
-        col1.image(user_avatar, width=30)  # Adjust size as needed
+        if os.path.exists(USER_AVATAR):
+            col1.image(USER_AVATAR, width=30)  # Adjust size as needed
+        else:
+            col1.write("👤")  # Fallback if image is missing
     else:
-        col1.image(bot_avatar, width=30)  # Adjust size as needed
+        if os.path.exists(BOT_AVATAR):
+            col1.image(BOT_AVATAR, width=30)  # Adjust size as needed
+        else:
+            col1.write("🤖")  # Fallback if image is missing
     col2.markdown(f"**{message}**")  # Use markdown for better text formatting
