@@ -1,1 +1,5 @@
 gdown
+streamlit
+transformers
+torch==2.4.0  # Use a compatible version without "+cpu"
+safetensors==0.4.5
