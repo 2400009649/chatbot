@@ -11,15 +11,14 @@ MODEL_PATH = os.path.join(MODEL_DIR, "model.safetensors")
 # Ensure the model directory exists
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-# Download the model if it does not exist
 if not os.path.exists(MODEL_PATH):
-    with st.spinner("Downloading model... This might take a while."):
-        response = requests.get(MODEL_URL, stream=True)
-        with open(MODEL_PATH, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        st.success("Model downloaded successfully!")
+    st.error("Model file not found. Please verify the download.")
+else:
+    file_size = os.path.getsize(MODEL_PATH)
+    print(f"Model file size: {file_size} bytes")
+    if file_size < 1_400_000_000:  # Expected size for the model is ~1.4GB
+        st.error("Model file appears to be incomplete. Please re-download it.")
+
 
 # Load the tokenizer and model
 try:
