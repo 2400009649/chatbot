@@ -24,10 +24,12 @@ if not os.path.exists(MODEL_PATH):
 # Load the tokenizer and model
 try:
     tokenizer = BlenderbotTokenizer.from_pretrained(MODEL_DIR)
-    model = BlenderbotForConditionalGeneration.from_pretrained(MODEL_DIR)
-    st.success("Model and tokenizer loaded successfully!")
+    model = BlenderbotForConditionalGeneration.from_pretrained(MODEL_DIR, use_safetensors=True)
+    print("Model and tokenizer loaded successfully!")
 except Exception as e:
-    st.error(f"Failed to load model or tokenizer: {e}")
+    print(f"Error loading model or tokenizer: {e}")
+    st.error(f"Failed to load model: {e}")
+    model = None
 
 # Function to generate a response
 def get_response(input_text):
