@@ -1,14 +1,18 @@
-# Sử dụng image Python
+# Sử dụng Python tối giản
 FROM python:3.10-slim
 
-# Cài đặt các dependency
+# Tạo thư mục làm việc trong container
 WORKDIR /app
+
+# Copy và cài đặt thư viện
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy toàn bộ mã nguồn vào container
 COPY . /app
 
-# Mở cổng và chạy FastAPI với Uvicorn
+# Mở cổng mặc định
 EXPOSE 8080
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+# Chạy ứng dụng FastAPI bằng Uvicorn
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
