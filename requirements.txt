@@ -2,3 +2,4 @@ streamlit
 SpeechRecognition
 sounddevice
 paho-mqtt
+scikit-learn
