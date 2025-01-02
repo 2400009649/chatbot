@@ -1,5 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
+import sounddevice as sd
+import numpy as np
 import paho.mqtt.client as mqtt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -31,7 +33,7 @@ model_action.fit(X, actions)
 model_device.fit(X, devices)
 
 # MQTT client configuration
-broker = "broker.mqtt-dashboard.com"  # Broker MQTT công cộng
+broker = "broker.mqtt-dashboard.com"
 port = 1883
 topic = "home/lighting"
 
@@ -40,23 +42,23 @@ client = mqtt.Client()
 # Kết nối tới MQTT broker
 client.connect(broker, port, 60)
 
-recognizer = sr.Recognizer()
-
 # Hàm nhận diện giọng nói từ microphone
 def recognize_voice():
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source)  # Điều chỉnh độ ồn môi trường
-        print("Đang lắng nghe, xin hãy nói lệnh...")
-        audio = recognizer.listen(source)
-        
+    recognizer = sr.Recognizer()
+    
+    with sd.InputStream(callback=None):
+        st.write("Đang lắng nghe, xin hãy nói lệnh...")
+        recognizer.adjust_for_ambient_noise(None)  # Điều chỉnh độ ồn môi trường
+        audio = recognizer.listen(None)
+
         try:
             # Nhận diện giọng nói và chuyển thành văn bản
             command = recognizer.recognize_google(audio, language='vi-VN')
             return command
         except sr.UnknownValueError:
-            return "Xin lỗi, tôi không thể hiểu lệnh."
+            return "Không thể hiểu lệnh."
         except sr.RequestError:
-            return "Xin lỗi, tôi không thể kết nối với dịch vụ nhận diện giọng nói."
+            return "Không thể kết nối với dịch vụ nhận diện giọng nói."
 
 # Giao diện Streamlit
 st.title("Ứng dụng Nhận diện Lệnh Giọng nói")
