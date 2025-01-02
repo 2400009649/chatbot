@@ -1,4 +1,5 @@
 streamlit
-google-cloud-speech
+SpeechRecognition
+pyaudio
 paho-mqtt
 scikit-learn
