@@ -40,14 +40,15 @@ client = mqtt.Client()
 # Kết nối tới MQTT broker
 client.connect(broker, port, 60)
 
+recognizer = sr.Recognizer()
+
 # Hàm nhận diện giọng nói từ microphone
 def recognize_voice():
-    recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        st.write("Đang lắng nghe, xin hãy nói lệnh...")
         recognizer.adjust_for_ambient_noise(source)  # Điều chỉnh độ ồn môi trường
+        print("Đang lắng nghe, xin hãy nói lệnh...")
         audio = recognizer.listen(source)
-
+        
         try:
             # Nhận diện giọng nói và chuyển thành văn bản
             command = recognizer.recognize_google(audio, language='vi-VN')
